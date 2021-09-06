@@ -6,7 +6,7 @@ def open1():
     root=Tk()
     root.geometry('1000x720+250+50')
     root.resizable(0,0)
-    bg=ImageTk.PhotoImage(file="stck4.jpg")
+    bg=ImageTk.PhotoImage(file="images\stck4.jpg")
 
     myc=Canvas(root,width=1000,height=720)
     myc.pack(fill='both',expand=True)

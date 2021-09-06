@@ -10,13 +10,13 @@ def log(r):
     root1=Toplevel()
     root1.geometry('1000x720+250+50')
     root1.resizable(0,0)
-    bgg=ImageTk.PhotoImage(file="stk2.jpg")
+    bgg=ImageTk.PhotoImage(file="images\stk2.jpg")
     myc1=Canvas(root1,width=1000,height=720,bd=0,highlightthickness=0)
     myc1.pack(fill='both',expand=True)
     myc1.create_image(0,0,image=bgg,anchor="nw")
-    profile=ImageTk.PhotoImage(file="profile.png")
+    profile=ImageTk.PhotoImage(file="images\profile.png")
     myc1.create_image(452,130,image=profile,anchor="nw")
-    btnim=ImageTk.PhotoImage(file="back.png")
+    btnim=ImageTk.PhotoImage(file="images\\back.png")
     myc1.create_text(420,20,text="Sign In",anchor="nw",font="times 40 bold",fill="white")
     def do():
         root1.destroy()
@@ -41,17 +41,20 @@ def log(r):
                 
             else:
                 try:
+                    global uid
                     mydb=mysql.connector.connect(host="localhost",user="root",password="",database="stocks")
                     con=mydb.cursor()
                     con.execute("select password from login where email=%s",(eid,))
                     result=con.fetchone()
+                    con.execute("select uid from shareholder where email=%s",(eid,))
+                    uid=con.fetchone()
                     mydb.close()
                     if(result[0]!=p):
                         myc1.itemconfigure(b,text="Wrong password")
                     else:
                         messagebox.showinfo("login","login successfull")
                         root1.destroy()
-                        stock(r)
+                        stock(r,uid[0])
                 except :
                     myc1.itemconfigure(a,text="Email not found")
 

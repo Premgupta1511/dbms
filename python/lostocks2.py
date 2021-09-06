@@ -1,12 +1,16 @@
 from tkinter import *
 from PIL import Image,ImageTk
 from bs4 import BeautifulSoup as bs
+from buyshare import buys
+from sellshare import sells
 import requests
-def stock2(r,s):
+import traceback
+import mysql.connector
+def stock2(r,s,uid):
     root2=Toplevel()
     root2.geometry('1000x720+250+50')
     root2.resizable(0,0)
-    bgg=ImageTk.PhotoImage(file="stk2.jpg")
+    bgg=ImageTk.PhotoImage(file="images\stk2.jpg")
     myc1=Canvas(root2,width=1000,height=720,bd=0,highlightthickness=0)
     myc1.pack(fill='both',expand=True)
     myc1.create_image(0,0,image=bgg,anchor="nw")
@@ -27,16 +31,17 @@ def stock2(r,s):
     def back():
         root2.destroy()
         r.deiconify()
-    btnim=ImageTk.PhotoImage(file="back.png")
+    btnim=ImageTk.PhotoImage(file="images\\back.png")
     btn=Button(myc1,image=btnim,bg="white",command=back)
     btn.place(x=30,y=30)
     def get(s):
+        global head
         link="https://www.google.com/finance/quote/"+s+":NSE"
         page=requests.get(link)
         soup=bs(page.content,'lxml')
         ltp=soup.find('div',class_="YMlKec fxKbKc").text
-        pre=soup.find_all('div',class_="M2CUtd")
-        head=soup.find('h1',class_="kHAtIb").text
+        pre=soup.find_all('div',class_="P6K39c")
+        head=soup.find('h1',class_="zzDege").text
         prev=pre[0].text
         dayL=pre[1].text.partition('-')[0]
         dayH=pre[1].text.partition('-')[2]
@@ -48,9 +53,12 @@ def stock2(r,s):
         iltp=float(ltp.replace('\u20B9','').replace(',',''))
         ipre=float(prev.replace('\u20B9','').replace(',',''))
         res=round((iltp-ipre),2)
+        if(res>0):
+            myc1.itemconfigure(inc,fill="#00FF00",text="+"+str(res)+"  Today")
+        else:
+            myc1.itemconfigure(inc,fill="red",text=str(res)+"  Today")
         myc1.itemconfigure(h,text=head)
         myc1.itemconfigure(lt,text=ltp)
-        myc1.itemconfigure(inc,text=str(res)+" Today")
         myc1.itemconfigure(pclo,text="Prev close    :  "+prev)
         myc1.itemconfigure(pr,text="P/E ratio      :   "+PE)
         myc1.itemconfigure(dl,text="DailyLow     :  "+dayL)
@@ -60,12 +68,28 @@ def stock2(r,s):
         myc1.itemconfigure(capi,text="MarketCap :  "+cap)
         myc1.itemconfigure(di,text="DividendYield :  "+div)
     get(s)
-    rf=ImageTk.PhotoImage(file="refresh.png")
+    rf=ImageTk.PhotoImage(file="images\\refresh.png")
     refreh=Button(myc1,text="Refresh",image=rf,compound=LEFT,bg="white",fg="blue",font="times 17 bold",command=lambda :get(s))
     refreh.place(x=450,y=20)
-    buy=Button(myc1,text="Buy",bg="green",fg="White",height=0,width=8,font="times 15 bold")
+    def sbuy():
+        root2.withdraw()
+        buys(root2,s,uid)      
+    buy=Button(myc1,text="Buy",bg="green",fg="White",height=0,width=8,font="times 15 bold",command=sbuy)
     buy.place(x=350,y=620)
-    sell=Button(myc1,text="Sell",bg="red",fg="White",height=0,width=8,font="times 15 bold")
+    def ssell():
+        try:
+            mydb=mysql.connector.connect(host="localhost",user="root",password="",database="stocks")
+            con=mydb.cursor()
+            con.execute("select * from shares where uid=%s and sname=%s",(uid,head))
+            result=con.fetchone()
+            if(result==None):
+                messagebox.showerror("error","CANNOT SELL :\nSHARE NOT OWNED")
+            else:
+                root2.withdraw()
+                sells(root2,s,result,uid)
+        except:
+            traceback.print_exc()
+    sell=Button(myc1,text="Sell",bg="red",fg="White",height=0,width=8,font="times 15 bold",command=ssell)
     sell.place(x=500,y=620)
     root2.mainloop()
     

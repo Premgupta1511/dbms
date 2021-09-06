@@ -1,24 +1,29 @@
-
+from tkinter import *
+from PIL import Image,ImageTk
 from bs4 import BeautifulSoup as bs
+from tkinter import messagebox
+from lostocks2 import stock2
+from trans import tra
+from addamt import addamt
 import requests
-v="INFY"
-link="https://www.google.com/finance/quote/"+v+":NSE"
-page=requests.get(link)
-soup=bs(page.content,'lxml')
-ltp=soup.find('div',class_="YMlKec fxKbKc").text
-pre=soup.find_all('div',class_="M2CUtd")
-head=soup.find('h1',class_="kHAtIb").text
-time=soup.find('div',class_="ygUjEc")
-prev=pre[0].text
-dayL=pre[1].text.partition('-')[0]
-dayH=pre[1].text.partition('-')[2]
-yL=pre[2].text.partition('-')[0]
-yH=pre[2].text.partition('-')[2]
-cap=pre[3].text
-PE=pre[4].text
-div=pre[5].text
-iltp=float(ltp.replace('\u20B9','').replace(',',''))
-ipre=float(prev.replace('\u20B9','').replace(',',''))
-res=round((iltp-ipre),2)
-text=str(res)+" Today"
-print(time)
+import traceback
+import mysql.connector
+import datetime
+import pytz
+root2=Tk()
+root2.geometry('1000x720+250+50')
+root2.resizable(0,0)
+bgg=ImageTk.PhotoImage(file="stk2.jpg")
+myc1=Canvas(root2,width=1000,height=720,bd=0,highlightthickness=0)
+myc1.pack(fill='both',expand=True)
+myc1.create_image(0,0,image=bgg,anchor="nw")
+ct=0
+
+b={}
+for i in range(3):
+    ct=ct+100
+    def show(x=i):
+        print(x)
+    b[i]=Button(myc1,text="view",bg="green",fg="White",height=0,width=6,font="times 20 bold",command=show).place(x=800,y=ct+50)
+
+root2.mainloop()
